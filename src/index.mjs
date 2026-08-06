@@ -1,5 +1,5 @@
 export const MAP_CORE_CONTRACT = "ajrm-marine-map-shell-v1";
-export const MAP_CORE_VERSION = "0.6.1";
+export const MAP_CORE_VERSION = "0.6.2";
 export const AUTO_CHARTS_NAME = "Auto Charts";
 export const OPEN_SEA_MAP_NAME = "OpenSeaMap";
 export const CHART_FOLDER_API_BASE = "/plugins/signalk-charts-provider-simple";
@@ -54,7 +54,7 @@ export function chartZoom(chart) {
 
 export function normalizeChartResources(resources) {
 	return Object.entries(resources || {}).map(([id, chart]) => {
-		const normalized = { ...chart, __ajrmMapChartId: id };
+		const normalized = { ...chart, __ajrmMapChartId: id, __autoChartId: id };
 		Object.defineProperties(normalized, {
 			__ajrmMapBounds: { value: chartBoundsCandidates(chart) },
 			__ajrmMapZoom: { value: chartZoom(chart) },
@@ -110,6 +110,126 @@ export function chooseChart(charts, map, position = map.getCenter()) {
 		zoom: map.getZoom(),
 		maxZoom: map.getMaxZoom(),
 	})[0] ?? null;
+}
+
+export function chartId(chart) {
+	return chart?.__ajrmMapChartId ?? chart?.__autoChartId ?? chart?.identifier ?? chart?.id ?? null;
+}
+
+export function createChartCycleState() {
+	let manualChartId = null;
+
+	const candidatesFor = (charts, map, position = map.getCenter()) => chartCandidates(charts, {
+		lat: position.lat,
+		lng: position.lng,
+		zoom: map.getZoom(),
+		maxZoom: map.getMaxZoom(),
+	});
+
+	return {
+		choose(charts, map, position) {
+			const candidates = candidatesFor(charts, map, position);
+			if (manualChartId) {
+				const manual = candidates.find((chart) => chartId(chart) === manualChartId);
+				if (manual) return manual;
+				manualChartId = null;
+			}
+			return candidates[0] ?? null;
+		},
+		cycle(charts, map, position) {
+			const candidates = candidatesFor(charts, map, position);
+			if (candidates.length < 2) {
+				manualChartId = null;
+				return candidates[0] ?? null;
+			}
+			if (!manualChartId) {
+				manualChartId = chartId(candidates[1]);
+				return candidates[1];
+			}
+			const currentIndex = candidates.findIndex((chart) => chartId(chart) === manualChartId);
+			if (currentIndex < 0 || currentIndex === candidates.length - 1) {
+				manualChartId = null;
+				return candidates[0];
+			}
+			manualChartId = chartId(candidates[currentIndex + 1]);
+			return candidates[currentIndex + 1];
+		},
+		reset() {
+			manualChartId = null;
+		},
+		get manualChartId() {
+			return manualChartId;
+		},
+		getCandidates: candidatesFor,
+	};
+}
+
+export function createChartCycleControl({
+	L,
+	map,
+	getCharts,
+	onChange = () => {},
+	position = "topleft",
+}) {
+	const state = createChartCycleState();
+	let button;
+	const syncButton = () => {
+		if (!button) return;
+		const candidates = state.getCandidates(getCharts(), map);
+		button.disabled = candidates.length < 2;
+		button.title = candidates.length < 2
+			? "No overlapping charts to cycle"
+			: state.manualChartId
+				? `Cycle overlapping charts (${candidates.findIndex((chart) => chartId(chart) === state.manualChartId) + 1} of ${candidates.length})`
+				: `Cycle overlapping charts (Auto, ${candidates.length} available)`;
+		button.setAttribute("aria-label", button.title);
+	};
+	const definition = L.Control.extend({
+		options: { position },
+		onAdd() {
+			const container = L.DomUtil.create("div", "leaflet-bar ajrm-map-cycle");
+			button = L.DomUtil.create("button", "ajrm-map-button", container);
+			button.type = "button";
+			button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L8 5l4 4V6a6 6 0 1 1-5.65 4H4.26A8 8 0 1 0 17.65 6.35Z"/></svg>';
+			L.DomEvent.disableClickPropagation(container);
+			L.DomEvent.on(button, "click", (event) => {
+				L.DomEvent.stop(event);
+				if (button.disabled) return;
+				state.cycle(getCharts(), map);
+				syncButton();
+				onChange();
+			});
+			map.on("moveend zoomend", syncButton);
+			syncButton();
+			return container;
+		},
+	});
+	const control = new definition();
+	return {
+		control,
+		addTo(target = map) {
+			control.addTo(target);
+			return this;
+		},
+		choose(charts = getCharts(), targetMap = map, positionValue) {
+			const selected = state.choose(charts, targetMap, positionValue);
+			syncButton();
+			return selected;
+		},
+		cycle(charts = getCharts(), targetMap = map, positionValue) {
+			const selected = state.cycle(charts, targetMap, positionValue);
+			syncButton();
+			return selected;
+		},
+		reset() {
+			state.reset();
+			syncButton();
+		},
+		update: syncButton,
+		get manualChartId() {
+			return state.manualChartId;
+		},
+	};
 }
 
 export function chartUrl(chart) {
@@ -197,6 +317,7 @@ export function createChartSelectorControl({
 	position = "topleft",
 }) {
 	let panel;
+	let renderPanel = () => {};
 	const definition = L.Control.extend({
 		options: { position },
 		onAdd() {
@@ -209,7 +330,7 @@ export function createChartSelectorControl({
 			button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-6-3-6 3 6 3 6-3Zm6 4-6-3-6 3-6-3v4l6 3 6-3 6 3V9Zm0 5-6-3-6 3-6-3v4l6 3 6-3 6 3v-4Z"/></svg>';
 			panel = L.DomUtil.create("div", "ajrm-map-panel", container);
 			panel.hidden = true;
-			const render = () => {
+			renderPanel = () => {
 				const base = Object.keys(baseMaps).map((name) => renderOption({ name, type: "radio", checked: getBaseMap() === name })).join("");
 				const normal = overlays.filter((item) => item.name !== AUTO_CHARTS_NAME);
 				const automatic = overlays.find((item) => item.name === AUTO_CHARTS_NAME);
@@ -228,14 +349,17 @@ export function createChartSelectorControl({
 					details.querySelector("[data-folder-list]").textContent = error.message;
 				}
 			};
-			render();
+			renderPanel();
 			L.DomEvent.disableClickPropagation(container);
 			L.DomEvent.disableScrollPropagation(container);
 			L.DomEvent.on(button, "click", (event) => {
 				L.DomEvent.stop(event);
 				panel.hidden = !panel.hidden;
 				button.setAttribute("aria-expanded", String(!panel.hidden));
-				if (!panel.hidden) void refreshFolders();
+				if (!panel.hidden) {
+					renderPanel();
+					void refreshFolders();
+				}
 			});
 			panel.addEventListener("change", async (event) => {
 				const input = event.target;
@@ -255,7 +379,7 @@ export function createChartSelectorControl({
 				}
 				if (input.type === "radio") setBaseMap(input.value);
 				else overlays.find((item) => item.name === input.value)?.setEnabled(input.checked);
-				render();
+				renderPanel();
 			});
 			map.on("click", () => {
 				panel.hidden = true;
@@ -265,7 +389,7 @@ export function createChartSelectorControl({
 		},
 	});
 	const control = new definition();
-	return { control, addTo: (target = map) => control.addTo(target), update: () => panel && undefined };
+	return { control, addTo: (target = map) => control.addTo(target), update: () => panel && renderPanel() };
 }
 
 export function normalizeCoordinateFormat(value, fallback = "dms") {

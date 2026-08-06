@@ -3,6 +3,8 @@ import test from "node:test";
 import {
 	MAP_CORE_CONTRACT,
 	chartCandidates,
+	chartId,
+	createChartCycleState,
 	formatCoordinate,
 	normalizeChartResources,
 	normalizeFolderResponse,
@@ -19,6 +21,29 @@ test("chart catalogue uses Display native-zoom and overzoom ranking", () => {
 	});
 	assert.deepEqual(chartCandidates(charts, { lat: 56, lng: -5.6, zoom: 16, maxZoom: 22 }).map((chart) => chart.__ajrmMapChartId), ["detail", "broad"]);
 	assert.deepEqual(chartCandidates(charts, { lat: 56, lng: -5.6, zoom: 20, maxZoom: 22 }).map((chart) => chart.__ajrmMapChartId), ["detail", "broad"]);
+});
+
+test("overlapping charts cycle from Auto through alternatives and back", () => {
+	const charts = normalizeChartResources({
+		broad: { bounds: [-5, 55, -4, 56], minzoom: 8, maxzoom: 14 },
+		detail: { bounds: [-4.6, 55.4, -4.4, 55.6], minzoom: 12, maxzoom: 18 },
+		extra: { bounds: [-4.55, 55.45, -4.45, 55.55], minzoom: 12, maxzoom: 19 },
+	});
+	const map = {
+		getCenter: () => ({ lat: 55.5, lng: -4.5 }),
+		getZoom: () => 15,
+		getMaxZoom: () => 22,
+	};
+	const cycle = createChartCycleState();
+	const automatic = cycle.choose(charts, map);
+	const second = cycle.cycle(charts, map);
+	const third = cycle.cycle(charts, map);
+	const backToAutomatic = cycle.cycle(charts, map);
+	assert.equal(chartId(automatic), "detail");
+	assert.equal(chartId(second), "extra");
+	assert.equal(chartId(third), "broad");
+	assert.equal(chartId(backToAutomatic), "detail");
+	assert.equal(cycle.manualChartId, null);
 });
 
 test("folder response preserves nesting and inherited state", () => {
