@@ -27,6 +27,8 @@ Applications retain ownership of their operational layers and actions.
   application's general form-input CSS cannot hide their labels.
 - The chart-cycle control uses Display's origin-wide `chartCycleShortcut`
   browser setting (`C` by default), while ignoring keystrokes in form fields.
+- Chart-cycle result wording is shared with Display, including disabled,
+  unavailable, automatic and manually selected chart states.
 - Chart-selector height is measured against the space actually remaining below
   the control, with touch/momentum scrolling so folders remain reachable in
   short windows and on iPadOS.

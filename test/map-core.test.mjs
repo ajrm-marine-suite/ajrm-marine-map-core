@@ -7,6 +7,7 @@ import {
 	MAP_ACTION_ICONS,
 	chartCandidates,
 	chartCycleShortcut,
+	chartCycleResultMessage,
 	chartCycleStatusMessage,
 	chartId,
 	createChartCycleState,
@@ -92,6 +93,8 @@ test("chart-cycle status wording is shared by map consumers", () => {
 	assert.equal(chartCycleStatusMessage({ selected: charts[0], candidates: charts }), "Automatic chart: Detailed harbour");
 	assert.equal(chartCycleStatusMessage({ selected: charts[1], candidates: charts, manualChartId: "broad" }), "Chart 2 of 2: Approaches");
 	assert.equal(chartCycleStatusMessage({ selected: null, candidates: [] }), "No enabled chart covers the map centre");
+	assert.equal(chartCycleResultMessage({ mode: "disabled" }), "Auto Charts is switched off");
+	assert.equal(chartCycleResultMessage(null), "Chart selection unavailable");
 	const css = readFileSync(new URL("../styles/map-core.css", import.meta.url), "utf8");
 	assert.match(css, /\.ajrm-map-chart-cycle-status\{position:fixed;top:12px;left:50%;z-index:1100/);
 });

@@ -1,5 +1,5 @@
 export const MAP_CORE_CONTRACT = "ajrm-marine-map-shell-v1";
-export const MAP_CORE_VERSION = "0.6.9";
+export const MAP_CORE_VERSION = "0.6.10";
 export const AUTO_CHARTS_NAME = "Auto Charts";
 export const OPEN_SEA_MAP_NAME = "OpenSeaMap";
 export const CHART_FOLDER_API_BASE = "/plugins/signalk-charts-provider-simple";
@@ -157,14 +157,29 @@ export function chartId(chart) {
 }
 
 export function chartDisplayName(chart) {
-	return chart?.name ?? chart?.title ?? chart?.description ?? chartId(chart) ?? "Unnamed chart";
+	return chart?.name || chart?.title || chart?.description || chartId(chart) || "Unnamed chart";
+}
+
+export function chartCycleResultMessage(result) {
+	if (result?.mode === "disabled") return "Auto Charts is switched off";
+	if (result?.mode === "empty") return "No enabled chart covers the map centre";
+	if (result?.mode === "auto") return `Automatic chart: ${chartDisplayName(result.chart)}`;
+	if (result?.mode === "manual") {
+		return `Chart ${result.index} of ${result.total}: ${chartDisplayName(result.chart)}`;
+	}
+	return "Chart selection unavailable";
 }
 
 export function chartCycleStatusMessage({ selected, candidates = [], manualChartId = null }) {
-	if (!selected) return "No enabled chart covers the map centre";
-	if (!manualChartId) return `Automatic chart: ${chartDisplayName(selected)}`;
+	if (!selected) return chartCycleResultMessage({ mode: "empty" });
+	if (!manualChartId) return chartCycleResultMessage({ mode: "auto", chart: selected });
 	const index = candidates.findIndex((chart) => chartId(chart) === manualChartId);
-	return `Chart ${Math.max(0, index) + 1} of ${candidates.length}: ${chartDisplayName(selected)}`;
+	return chartCycleResultMessage({
+		mode: "manual",
+		chart: selected,
+		index: Math.max(0, index) + 1,
+		total: candidates.length,
+	});
 }
 
 export function createChartCycleState() {
