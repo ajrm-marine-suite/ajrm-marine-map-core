@@ -14,9 +14,11 @@ import {
 	formatCoordinate,
 	floatingPanelHeight,
 	isChartCycleShortcutEvent,
+	labelLeafletZoomControls,
 	mapActionState,
 	normalizeChartResources,
 	normalizeFolderResponse,
+	setMapControlHoverHelp,
 } from "../src/index.mjs";
 
 test("map core publishes the versioned shell contract", () => {
@@ -45,6 +47,35 @@ test("common action toolbar is a vertical map-control stack", () => {
 	assert.match(css, /\.ajrm-map-option input,\.ajrm-map-folder input\{[^}]*flex:0 0 16px;[^}]*width:16px;[^}]*height:16px;/);
 	assert.match(css, /\.ajrm-map-option span,\.ajrm-map-folder span\{[^}]*display:block;[^}]*min-width:0/);
 	assert.match(css, /\.ajrm-map-panel\{[^}]*overflow-x:hidden;[^}]*overflow-y:auto;[^}]*touch-action:pan-y;/);
+	assert.match(css, /\[data-ajrm-map-help\]::after\{/);
+	assert.match(css, /\[data-ajrm-map-help\]:hover::after/);
+});
+
+test("map control hover help labels buttons and Leaflet zoom controls", () => {
+	function element() {
+		const attributes = new Map();
+		return {
+			setAttribute: (name, value) => attributes.set(name, value),
+			getAttribute: (name) => attributes.get(name) ?? null,
+			removeAttribute: (name) => attributes.delete(name),
+			attributes,
+		};
+	}
+	const button = element();
+	setMapControlHoverHelp(button, "Show voyages");
+	assert.equal(button.title, "Show voyages");
+	assert.equal(button.attributes.get("data-ajrm-map-help"), "Show voyages");
+	assert.equal(button.attributes.get("aria-label"), "Show voyages");
+
+	const zoomIn = element();
+	const zoomOut = element();
+	const labelled = labelLeafletZoomControls({
+		getContainer: () => ({
+			querySelector: (selector) => selector.endsWith("zoom-in") ? zoomIn : zoomOut,
+		}),
+	});
+	assert.equal(labelled.zoomIn.attributes.get("data-ajrm-map-help"), "Zoom in");
+	assert.equal(labelled.zoomOut.attributes.get("data-ajrm-map-help"), "Zoom out");
 });
 
 test("floating selector height uses only the viewport space below the control", () => {

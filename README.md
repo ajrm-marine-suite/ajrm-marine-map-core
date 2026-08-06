@@ -1,5 +1,8 @@
 # AJRM Marine Map Core
 
+Version `0.6.11` adds consistent visible hover/focus help for map controls,
+including Leaflet zoom controls, shared chart controls and app action icons.
+
 Internal, versioned map UI used by AJRM Marine Display, DR Plotter, Voyage
 Viewer and Harbour Editor. It is a library rather than a Signal K application.
 
