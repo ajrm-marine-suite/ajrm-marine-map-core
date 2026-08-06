@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
 	MAP_CORE_CONTRACT,
@@ -23,6 +24,12 @@ test("common action toolbar exposes Display-style icon and state contracts", () 
 		isDisabled: () => true,
 		isPressed: () => true,
 	}), { visible: false, disabled: true, pressed: true });
+});
+
+test("common action toolbar is a vertical map-control stack", () => {
+	const css = readFileSync(new URL("../styles/map-core.css", import.meta.url), "utf8");
+	assert.match(css, /\.ajrm-map-actions\{display:flex;flex-direction:column\}/);
+	assert.match(css, /\.ajrm-map-button\{display:block;/);
 });
 
 test("chart catalogue uses Display native-zoom and overzoom ranking", () => {

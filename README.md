@@ -18,3 +18,5 @@ Applications retain ownership of their operational layers and actions.
 - Coordinate format is browser-global; basemap, overlay, cursor visibility and
   map position remain application-specific.
 - Application controls use common buttons only when their semantics match.
+- Native `+ / −` zoom remains first in the upper-left Leaflet stack; chart
+  controls follow it and application actions form a vertical column below.
