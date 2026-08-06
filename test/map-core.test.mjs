@@ -2,16 +2,27 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
 	MAP_CORE_CONTRACT,
+	MAP_ACTION_ICONS,
 	chartCandidates,
 	chartId,
 	createChartCycleState,
 	formatCoordinate,
+	mapActionState,
 	normalizeChartResources,
 	normalizeFolderResponse,
 } from "../src/index.mjs";
 
 test("map core publishes the versioned shell contract", () => {
 	assert.equal(MAP_CORE_CONTRACT, "ajrm-marine-map-shell-v1");
+});
+
+test("common action toolbar exposes Display-style icon and state contracts", () => {
+	assert.match(MAP_ACTION_ICONS.settings, /<svg/);
+	assert.deepEqual(mapActionState({
+		isVisible: () => false,
+		isDisabled: () => true,
+		isPressed: () => true,
+	}), { visible: false, disabled: true, pressed: true });
 });
 
 test("chart catalogue uses Display native-zoom and overzoom ranking", () => {

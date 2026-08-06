@@ -1,6 +1,6 @@
 {
   "name": "@ajrm-marine/map-core",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Internal shared map and chart controls for AJRM Marine browser applications.",
   "type": "module",
   "main": "src/index.mjs",
@@ -8,7 +8,12 @@
     ".": "./src/index.mjs",
     "./styles.css": "./styles/map-core.css"
   },
-  "files": ["src", "styles", "README.md", "LICENSE"],
+  "files": [
+    "src",
+    "styles",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "node --test"
   },
