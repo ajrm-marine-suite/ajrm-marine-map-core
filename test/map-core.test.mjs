@@ -7,6 +7,7 @@ import {
 	MAP_ACTION_ICONS,
 	chartCandidates,
 	chartCycleShortcut,
+	chartCycleStatusMessage,
 	chartId,
 	createChartCycleState,
 	formatCoordinate,
@@ -81,6 +82,18 @@ test("overlapping charts cycle from Auto through alternatives and back", () => {
 	assert.equal(chartId(third), "broad");
 	assert.equal(chartId(backToAutomatic), "detail");
 	assert.equal(cycle.manualChartId, null);
+});
+
+test("chart-cycle status wording is shared by map consumers", () => {
+	const charts = [
+		{ __ajrmMapChartId: "detail", name: "Detailed harbour" },
+		{ __ajrmMapChartId: "broad", name: "Approaches" },
+	];
+	assert.equal(chartCycleStatusMessage({ selected: charts[0], candidates: charts }), "Automatic chart: Detailed harbour");
+	assert.equal(chartCycleStatusMessage({ selected: charts[1], candidates: charts, manualChartId: "broad" }), "Chart 2 of 2: Approaches");
+	assert.equal(chartCycleStatusMessage({ selected: null, candidates: [] }), "No enabled chart covers the map centre");
+	const css = readFileSync(new URL("../styles/map-core.css", import.meta.url), "utf8");
+	assert.match(css, /\.ajrm-map-chart-cycle-status\{position:fixed;top:12px;left:50%;z-index:1100/);
 });
 
 test("chart cycling uses Display's shared browser shortcut and ignores form editing", () => {
