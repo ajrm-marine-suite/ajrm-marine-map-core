@@ -10,6 +10,7 @@ import {
 	chartId,
 	createChartCycleState,
 	formatCoordinate,
+	floatingPanelHeight,
 	isChartCycleShortcutEvent,
 	mapActionState,
 	normalizeChartResources,
@@ -41,6 +42,13 @@ test("common action toolbar is a vertical map-control stack", () => {
 	assert.match(css, /\.ajrm-map-panel\{[^}]*left:44px;/);
 	assert.match(css, /\.ajrm-map-option input,\.ajrm-map-folder input\{[^}]*flex:0 0 16px;[^}]*width:16px;[^}]*height:16px;/);
 	assert.match(css, /\.ajrm-map-option span,\.ajrm-map-folder span\{[^}]*display:block;[^}]*min-width:0/);
+	assert.match(css, /\.ajrm-map-panel\{[^}]*overflow-x:hidden;[^}]*overflow-y:auto;[^}]*touch-action:pan-y;/);
+});
+
+test("floating selector height uses only the viewport space below the control", () => {
+	assert.equal(floatingPanelHeight({ top: 170, viewportHeight: 600 }), 418);
+	assert.equal(floatingPanelHeight({ top: 80, viewportHeight: 900 }), 560);
+	assert.equal(floatingPanelHeight({ top: 170, viewportHeight: 210 }), 48);
 });
 
 test("chart catalogue uses Display native-zoom and overzoom ranking", () => {
