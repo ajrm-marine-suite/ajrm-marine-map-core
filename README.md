@@ -24,3 +24,5 @@ Applications retain ownership of their operational layers and actions.
   shared control glyphs, and a uniform 10 px vertical gap.
 - Selector radios and checkboxes have explicit local dimensions so an owning
   application's general form-input CSS cannot hide their labels.
+- The chart-cycle control uses Display's origin-wide `chartCycleShortcut`
+  browser setting (`C` by default), while ignoring keystrokes in form fields.

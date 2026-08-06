@@ -6,9 +6,11 @@ import {
 	MAP_CONTROL_ICONS,
 	MAP_ACTION_ICONS,
 	chartCandidates,
+	chartCycleShortcut,
 	chartId,
 	createChartCycleState,
 	formatCoordinate,
+	isChartCycleShortcutEvent,
 	mapActionState,
 	normalizeChartResources,
 	normalizeFolderResponse,
@@ -71,6 +73,16 @@ test("overlapping charts cycle from Auto through alternatives and back", () => {
 	assert.equal(chartId(third), "broad");
 	assert.equal(chartId(backToAutomatic), "detail");
 	assert.equal(cycle.manualChartId, null);
+});
+
+test("chart cycling uses Display's shared browser shortcut and ignores form editing", () => {
+	const storage = { getItem: (key) => key === "chartCycleShortcut" ? "x" : null };
+	assert.equal(chartCycleShortcut(storage), "X");
+	assert.equal(chartCycleShortcut({ getItem: () => null }), "C");
+	assert.equal(isChartCycleShortcutEvent({ key: "x", target: { tagName: "DIV" } }, storage), true);
+	assert.equal(isChartCycleShortcutEvent({ key: "x", target: { tagName: "INPUT" } }, storage), false);
+	assert.equal(isChartCycleShortcutEvent({ key: "x", ctrlKey: true, target: { tagName: "DIV" } }, storage), false);
+	assert.equal(isChartCycleShortcutEvent({ key: "c", target: { tagName: "DIV" } }, storage), false);
 });
 
 test("folder response preserves nesting and inherited state", () => {
