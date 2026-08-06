@@ -1,4 +1,5 @@
 export const MAP_CORE_CONTRACT = "ajrm-marine-map-shell-v1";
+export const MAP_CORE_VERSION = "0.6.1";
 export const AUTO_CHARTS_NAME = "Auto Charts";
 export const OPEN_SEA_MAP_NAME = "OpenSeaMap";
 export const CHART_FOLDER_API_BASE = "/plugins/signalk-charts-provider-simple";
@@ -45,7 +46,7 @@ export function chartBoundsCandidates(chart) {
 }
 
 export function chartZoom(chart) {
-	return chart?.__ajrmMapZoom ?? {
+	return chart?.__ajrmMapZoom ?? chart?.__autoChartZoom ?? {
 		min: finiteNumber(chart?.minzoom ?? chart?.minZoom, 0),
 		max: finiteNumber(chart?.maxzoom ?? chart?.maxZoom, 24),
 	};
@@ -63,7 +64,8 @@ export function normalizeChartResources(resources) {
 }
 
 export function chartBounds(chart, lat, lon) {
-	const candidates = chart?.__ajrmMapBounds ?? chartBoundsCandidates(chart);
+	const candidates = chart?.__ajrmMapBounds ?? chart?.__autoChartBoundsCandidates ??
+		chartBoundsCandidates(chart);
 	return candidates.find((bounds) =>
 		lon >= bounds[0] && lon <= bounds[2] && lat >= bounds[1] && lat <= bounds[3]) ??
 		candidates[0] ?? null;
