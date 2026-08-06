@@ -20,3 +20,5 @@ Applications retain ownership of their operational layers and actions.
 - Application controls use common buttons only when their semantics match.
 - Native `+ / −` zoom remains first in the upper-left Leaflet stack; chart
   controls follow it and application actions form a vertical column below.
+- Map buttons use Display's 38 px button size, approximately 25 px SVG icons,
+  shared control glyphs, and a uniform 10 px vertical gap.

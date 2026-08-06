@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
 	MAP_CORE_CONTRACT,
+	MAP_CONTROL_ICONS,
 	MAP_ACTION_ICONS,
 	chartCandidates,
 	chartId,
@@ -18,7 +19,12 @@ test("map core publishes the versioned shell contract", () => {
 });
 
 test("common action toolbar exposes Display-style icon and state contracts", () => {
-	assert.match(MAP_ACTION_ICONS.settings, /<svg/);
+	assert.match(MAP_ACTION_ICONS.settings, /class="ajrm-marine-control-icon"/);
+	assert.equal(MAP_ACTION_ICONS.settings, MAP_CONTROL_ICONS.settings);
+	assert.equal(MAP_ACTION_ICONS.follow, MAP_CONTROL_ICONS.follow);
+	assert.equal(MAP_ACTION_ICONS.list, MAP_CONTROL_ICONS.targets);
+	assert.match(MAP_CONTROL_ICONS.layers, /viewBox="0 0 16 16"/);
+	assert.match(MAP_CONTROL_ICONS.cycleCharts, /viewBox="0 0 16 16"/);
 	assert.deepEqual(mapActionState({
 		isVisible: () => false,
 		isDisabled: () => true,
@@ -28,8 +34,9 @@ test("common action toolbar exposes Display-style icon and state contracts", () 
 
 test("common action toolbar is a vertical map-control stack", () => {
 	const css = readFileSync(new URL("../styles/map-core.css", import.meta.url), "utf8");
-	assert.match(css, /\.ajrm-map-actions\{display:flex;flex-direction:column\}/);
-	assert.match(css, /\.ajrm-map-button\{display:block;/);
+	assert.match(css, /\.ajrm-map-actions\{display:flex;flex-direction:column;gap:10px;/);
+	assert.match(css, /\.ajrm-map-button\{[^}]*width:38px;[^}]*height:38px;[^}]*font-size:24px;[^}]*line-height:38px;/);
+	assert.match(css, /\.ajrm-map-panel\{[^}]*left:44px;/);
 });
 
 test("chart catalogue uses Display native-zoom and overzoom ranking", () => {
