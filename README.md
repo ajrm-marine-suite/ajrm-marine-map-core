@@ -22,3 +22,5 @@ Applications retain ownership of their operational layers and actions.
   controls follow it and application actions form a vertical column below.
 - Map buttons use Display's 38 px button size, approximately 25 px SVG icons,
   shared control glyphs, and a uniform 10 px vertical gap.
+- Selector radios and checkboxes have explicit local dimensions so an owning
+  application's general form-input CSS cannot hide their labels.

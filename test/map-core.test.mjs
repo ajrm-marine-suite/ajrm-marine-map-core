@@ -37,6 +37,8 @@ test("common action toolbar is a vertical map-control stack", () => {
 	assert.match(css, /\.ajrm-map-actions\{display:flex;flex-direction:column;gap:10px;/);
 	assert.match(css, /\.ajrm-map-button\{[^}]*width:38px;[^}]*height:38px;[^}]*font-size:24px;[^}]*line-height:38px;/);
 	assert.match(css, /\.ajrm-map-panel\{[^}]*left:44px;/);
+	assert.match(css, /\.ajrm-map-option input,\.ajrm-map-folder input\{[^}]*flex:0 0 16px;[^}]*width:16px;[^}]*height:16px;/);
+	assert.match(css, /\.ajrm-map-option span,\.ajrm-map-folder span\{[^}]*display:block;[^}]*min-width:0/);
 });
 
 test("chart catalogue uses Display native-zoom and overzoom ranking", () => {
