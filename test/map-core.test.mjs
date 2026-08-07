@@ -10,6 +10,7 @@ import {
 	chartCycleResultMessage,
 	chartCycleStatusMessage,
 	chartId,
+	createChartSelectorControl,
 	createChartCycleState,
 	formatCoordinate,
 	floatingPanelHeight,
@@ -76,6 +77,53 @@ test("map control hover help labels buttons and Leaflet zoom controls", () => {
 	});
 	assert.equal(labelled.zoomIn.attributes.get("data-ajrm-map-help"), "Zoom in");
 	assert.equal(labelled.zoomOut.attributes.get("data-ajrm-map-help"), "Zoom out");
+});
+
+test("chart selector releases browser, DOM and map listeners", () => {
+	const calls = [];
+	const element = (tagName = "div") => ({
+		tagName: tagName.toUpperCase(),
+		hidden: false,
+		style: {},
+		setAttribute() {},
+		getAttribute() { return null; },
+		addEventListener: (name, handler) => calls.push(["dom-on", name, handler]),
+		removeEventListener: (name, handler) => calls.push(["dom-off", name, handler]),
+	});
+	const L = {
+		Control: {
+			extend: (definition) => class {
+				constructor() { Object.assign(this, definition); }
+			},
+		},
+		DomUtil: { create: (tagName) => element(tagName) },
+		DomEvent: { disableClickPropagation() {}, disableScrollPropagation() {}, on() {}, stop() {} },
+	};
+	const map = {
+		on: (name, handler) => calls.push(["map-on", name, handler]),
+		off: (name, handler) => calls.push(["map-off", name, handler]),
+	};
+	const windowObject = {
+		addEventListener: (name, handler) => calls.push(["window-on", name, handler]),
+		removeEventListener: (name, handler) => calls.push(["window-off", name, handler]),
+	};
+	const selector = createChartSelectorControl({
+		L,
+		map,
+		baseMaps: { Blank: {} },
+		getBaseMap: () => "Blank",
+		setBaseMap() {},
+		windowObject,
+	});
+	selector.control.onAdd();
+	selector.control.onRemove();
+	for (const source of ["dom", "map", "window"]) {
+		const added = calls.find(([kind]) => kind === `${source}-on`);
+		const removed = calls.find(([kind]) => kind === `${source}-off`);
+		assert.ok(added, `${source} listener registered`);
+		assert.ok(removed, `${source} listener removed`);
+		assert.equal(removed[2], added[2], `${source} removes the registered handler`);
+	}
 });
 
 test("floating selector height uses only the viewport space below the control", () => {
