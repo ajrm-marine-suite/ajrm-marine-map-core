@@ -1,6 +1,6 @@
 # AJRM Marine Map Core
 
-Version `0.7.0` is the reviewed shared-map baseline. It adds complete control
+Version `0.7.1` is the reviewed shared-map baseline. It adds complete control
 lifecycle cleanup while retaining consistent visible hover/focus help for
 Leaflet zoom controls, shared chart controls and application action icons.
 

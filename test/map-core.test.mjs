@@ -1,3 +1,7 @@
+/**
+ * Exercises the public contracts of the shared AJRM Marine map-shell module.
+ */
+
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
