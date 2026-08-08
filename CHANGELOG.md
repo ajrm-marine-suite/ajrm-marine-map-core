@@ -1,9 +1,14 @@
 # Changelog
 
+## 0.7.2
+
+- Add the shared COG-oriented own-vessel follow calculation and browser setting.
+- Default follow mode to 66% visible chart ahead and 34% behind, with safe
+  centred fallback when COG is unavailable.
+
 ## 0.7.1
 
 - Document the shared map module's purpose and the responsibilities it provides
   to Display, Voyages, Navigation Integrity, and Harbour Editor.
 - Keep the runtime contract unchanged while publishing an explicit module
   version for the documentation-only release.
-

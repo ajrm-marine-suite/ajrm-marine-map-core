@@ -1,8 +1,7 @@
 # AJRM Marine Map Core
 
-Version `0.7.1` is the reviewed shared-map baseline. It adds complete control
-lifecycle cleanup while retaining consistent visible hover/focus help for
-Leaflet zoom controls, shared chart controls and application action icons.
+Version `0.7.2` adds the shared COG-oriented own-vessel follow calculation and
+browser setting while retaining the reviewed shared-map control baseline.
 
 Internal, versioned map UI used by AJRM Marine Display, DR Plotter, Voyage
 Viewer and Harbour Editor. It is a library rather than a Signal K application.
@@ -22,6 +21,8 @@ Applications retain ownership of their operational layers and actions.
   it.
 - Coordinate format is browser-global; basemap, overlay, cursor visibility and
   map position remain application-specific.
+- Own-vessel follow look-ahead is browser-global: 66% of the visible chart is
+  ahead along COG by default and 34% behind. A missing COG centres the vessel.
 - Application controls use common buttons only when their semantics match.
 - Native `+ / −` zoom remains first in the upper-left Leaflet stack; chart
   controls follow it and application actions form a vertical column below.

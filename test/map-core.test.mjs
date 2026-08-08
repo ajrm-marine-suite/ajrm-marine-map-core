@@ -9,6 +9,8 @@ import {
 	MAP_CORE_CONTRACT,
 	MAP_CONTROL_ICONS,
 	MAP_ACTION_ICONS,
+	MAP_FOLLOW_LOOK_AHEAD_DEFAULT_PERCENT,
+	MAP_FOLLOW_LOOK_AHEAD_STORAGE_KEY,
 	chartCandidates,
 	chartCycleShortcut,
 	chartCycleResultMessage,
@@ -20,14 +22,64 @@ import {
 	floatingPanelHeight,
 	isChartCycleShortcutEvent,
 	labelLeafletZoomControls,
+	loadMapFollowLookAheadPercent,
+	mapFollowLookAheadCenter,
 	mapActionState,
 	normalizeChartResources,
 	normalizeFolderResponse,
+	normalizeMapFollowLookAheadPercent,
+	saveMapFollowLookAheadPercent,
 	setMapControlHoverHelp,
 } from "../src/index.mjs";
 
 test("map core publishes the versioned shell contract", () => {
 	assert.equal(MAP_CORE_CONTRACT, "ajrm-marine-map-shell-v1");
+});
+
+test("map follow look-ahead defaults to 66 percent and persists one shared setting", () => {
+	const values = new Map();
+	const storage = {
+		getItem: (key) => values.get(key) ?? null,
+		setItem: (key, value) => values.set(key, value),
+	};
+	assert.equal(loadMapFollowLookAheadPercent(storage), MAP_FOLLOW_LOOK_AHEAD_DEFAULT_PERCENT);
+	assert.equal(normalizeMapFollowLookAheadPercent(20), 50);
+	assert.equal(normalizeMapFollowLookAheadPercent(95), 80);
+	assert.equal(saveMapFollowLookAheadPercent("72", storage), 72);
+	assert.equal(values.get(MAP_FOLLOW_LOOK_AHEAD_STORAGE_KEY), "72");
+	assert.equal(loadMapFollowLookAheadPercent(storage), 72);
+});
+
+test("map follow look-ahead places 66 percent of the visible chart ahead along COG", () => {
+	const map = {
+		getSize: () => ({ x: 1000, y: 600 }),
+		getZoom: () => 12,
+		project: () => ({ x: 5000, y: 4000 }),
+		unproject: (point) => point,
+	};
+	const north = mapFollowLookAheadCenter({
+		map,
+		position: { latitude: 55.5, longitude: -5.5 },
+		cogRadians: 0,
+		lookAheadPercent: 66,
+	});
+	assert.deepEqual(north, { x: 5000, y: 3904 });
+	const east = mapFollowLookAheadCenter({
+		map,
+		position: { latitude: 55.5, longitude: -5.5 },
+		cogRadians: Math.PI / 2,
+		lookAheadPercent: 66,
+	});
+	assert.ok(Math.abs(east.x - 5160) < 1e-9);
+	assert.ok(Math.abs(east.y - 4000) < 1e-9);
+});
+
+test("map follow look-ahead centres the vessel when COG is unavailable", () => {
+	assert.deepEqual(mapFollowLookAheadCenter({
+		map: {},
+		position: { latitude: 55.5, longitude: -5.5 },
+		cogRadians: null,
+	}), [55.5, -5.5]);
 });
 
 test("common action toolbar exposes Display-style icon and state contracts", () => {
