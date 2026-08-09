@@ -1,5 +1,6 @@
 # AJRM Marine Map Core
 
+Version `0.7.3` disables manual chart cycling whenever Auto Charts is off.
 Version `0.7.2` adds the shared COG-oriented own-vessel follow calculation and
 browser setting while retaining the reviewed shared-map control baseline.
 
@@ -32,6 +33,8 @@ Applications retain ownership of their operational layers and actions.
   application's general form-input CSS cannot hide their labels.
 - The chart-cycle control uses Display's origin-wide `chartCycleShortcut`
   browser setting (`C` by default), while ignoring keystrokes in form fields.
+- Consumers provide their Auto Charts enabled state so the cycle button and
+  keyboard shortcut remain inactive whenever automatic chart display is off.
 - Chart-cycle result wording is shared with Display, including disabled,
   unavailable, automatic and manually selected chart states.
 - Chart-selector height is measured against the space actually remaining below

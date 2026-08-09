@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.3
+
+- Disable the chart-cycle button and keyboard shortcut whenever Auto Charts is
+  off, with shared hover help explaining how to enable it.
+
 ## 0.7.2
 
 - Add the shared COG-oriented own-vessel follow calculation and browser setting.

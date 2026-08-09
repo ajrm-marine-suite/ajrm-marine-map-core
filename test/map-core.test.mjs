@@ -16,6 +16,7 @@ import {
 	chartCycleResultMessage,
 	chartCycleStatusMessage,
 	chartId,
+	createChartCycleControl,
 	createChartSelectorControl,
 	createChartCycleState,
 	formatCoordinate,
@@ -242,6 +243,68 @@ test("chart cycling uses Display's shared browser shortcut and ignores form edit
 	assert.equal(isChartCycleShortcutEvent({ key: "x", target: { tagName: "INPUT" } }, storage), false);
 	assert.equal(isChartCycleShortcutEvent({ key: "x", ctrlKey: true, target: { tagName: "DIV" } }, storage), false);
 	assert.equal(isChartCycleShortcutEvent({ key: "c", target: { tagName: "DIV" } }, storage), false);
+});
+
+test("chart-cycle control is disabled and silent while Auto Charts is off", () => {
+	let enabled = false;
+	let button;
+	let keydown;
+	let changes = 0;
+	const charts = normalizeChartResources({
+		broad: { bounds: [-5, 55, -4, 56], minzoom: 8, maxzoom: 14 },
+		detail: { bounds: [-4.6, 55.4, -4.4, 55.6], minzoom: 12, maxzoom: 18 },
+	});
+	const map = {
+		getCenter: () => ({ lat: 55.5, lng: -4.5 }),
+		getZoom: () => 15,
+		getMaxZoom: () => 22,
+		on() {},
+		off() {},
+	};
+	const element = (tagName) => ({
+		tagName: tagName.toUpperCase(),
+		setAttribute(name, value) { this[name] = value; },
+		removeAttribute() {},
+	});
+	const L = {
+		Control: {
+			extend: (definition) => class {
+				constructor() { Object.assign(this, definition); }
+				addTo() { this.onAdd(); return this; }
+			},
+		},
+		DomUtil: {
+			create(tagName) {
+				const created = element(tagName);
+				if (tagName === "button") button = created;
+				return created;
+			},
+		},
+		DomEvent: { disableClickPropagation() {}, on() {}, stop() {} },
+	};
+	const control = createChartCycleControl({
+		L,
+		map,
+		getCharts: () => charts,
+		isEnabled: () => enabled,
+		onChange: () => { changes += 1; },
+		document: { addEventListener: (_name, listener) => { keydown = listener; } },
+		storage: { getItem: () => "c" },
+	});
+	control.addTo();
+	assert.equal(button.disabled, true);
+	assert.equal(button.title, "Turn on Auto Charts to cycle charts");
+	let prevented = false;
+	keydown({ key: "c", target: { tagName: "DIV" }, preventDefault: () => { prevented = true; } });
+	assert.equal(changes, 0);
+	assert.equal(prevented, false);
+
+	enabled = true;
+	control.update();
+	assert.equal(button.disabled, false);
+	keydown({ key: "c", target: { tagName: "DIV" }, preventDefault: () => { prevented = true; } });
+	assert.equal(changes, 1);
+	assert.equal(prevented, true);
 });
 
 test("folder response preserves nesting and inherited state", () => {
