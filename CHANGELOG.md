@@ -1,9 +1,10 @@
 # Changelog
 
-## 0.7.4
+## 0.7.5
 
 - Keep nested chart-folder controls visible and preserve their expanded state
   when Auto Charts or another map-selector option changes.
+- Keep the exported runtime version aligned with the package release.
 
 ## 0.7.3
 

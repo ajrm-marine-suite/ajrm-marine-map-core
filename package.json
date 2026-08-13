@@ -1,6 +1,6 @@
 {
   "name": "@ajrm-marine/map-core",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "Internal shared map and chart controls for AJRM Marine browser applications.",
   "type": "module",
   "main": "src/index.mjs",
