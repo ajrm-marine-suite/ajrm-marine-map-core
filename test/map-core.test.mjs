@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
+	AUTO_CHARTS_NAME,
 	MAP_CORE_CONTRACT,
 	MAP_CONTROL_ICONS,
 	MAP_ACTION_ICONS,
@@ -181,6 +182,81 @@ test("chart selector releases browser, DOM and map listeners", () => {
 		assert.ok(removed, `${source} listener removed`);
 		assert.equal(removed[2], added[2], `${source} removes the registered handler`);
 	}
+});
+
+test("chart selector keeps chart folders visible after Auto Charts changes", async () => {
+	let panel;
+	let buttonClick;
+	let panelChange;
+	let folderLoads = 0;
+	const makePanel = () => {
+		let details;
+		const element = {
+			tagName: "DIV",
+			hidden: true,
+			style: {},
+			set innerHTML(value) {
+				this.html = value;
+				details = value.includes("data-folders") ? {
+					hidden: true,
+					open: false,
+					querySelector: () => ({ innerHTML: "", textContent: "" }),
+				} : null;
+			},
+			get innerHTML() { return this.html || ""; },
+			querySelector: (selector) => selector === "[data-folders]" ? details : null,
+			addEventListener: (_name, handler) => { panelChange = handler; },
+			removeEventListener() {},
+			getBoundingClientRect: () => ({ top: 0 }),
+		};
+		return element;
+	};
+	const plainElement = (tagName) => ({
+		tagName: tagName.toUpperCase(),
+		hidden: false,
+		style: {},
+		setAttribute() {},
+		removeAttribute() {},
+	});
+	const L = {
+		Control: { extend: (definition) => class { constructor() { Object.assign(this, definition); } } },
+		DomUtil: {
+			create(tagName, className) {
+				if (className === "ajrm-map-panel") return (panel = makePanel());
+				return plainElement(tagName);
+			},
+		},
+		DomEvent: {
+			disableClickPropagation() {},
+			disableScrollPropagation() {},
+			on(_element, name, handler) { if (name === "click") buttonClick = handler; },
+			stop() {},
+		},
+	};
+	const selector = createChartSelectorControl({
+		L,
+		map: { on() {}, off() {} },
+		baseMaps: { Blank: {} },
+		getBaseMap: () => "Blank",
+		setBaseMap() {},
+		overlays: [{ name: AUTO_CHARTS_NAME, isEnabled: () => false, setEnabled() {} }],
+		folderClient: {
+			async list() {
+				folderLoads += 1;
+				return { supported: true, folders: [{ path: "Antares", name: "Antares", depth: 0, enabled: true, effectiveEnabled: true }] };
+			},
+		},
+		windowObject: { innerHeight: 800, addEventListener() {}, removeEventListener() {} },
+	});
+	selector.control.onAdd();
+	buttonClick({});
+	await new Promise((resolve) => setImmediate(resolve));
+	assert.equal(panel.querySelector("[data-folders]").hidden, false);
+	panel.querySelector("[data-folders]").open = true;
+	await panelChange({ target: { tagName: "INPUT", dataset: {}, type: "checkbox", value: AUTO_CHARTS_NAME, checked: true } });
+	assert.equal(folderLoads, 2);
+	assert.equal(panel.querySelector("[data-folders]").hidden, false);
+	assert.equal(panel.querySelector("[data-folders]").open, true);
 });
 
 test("floating selector height uses only the viewport space below the control", () => {

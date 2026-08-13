@@ -738,9 +738,13 @@ export function createChartSelectorControl({
 					}
 					return;
 				}
+				const foldersWereOpen = panel.querySelector("[data-folders]")?.open === true;
 				if (input.type === "radio") setBaseMap(input.value);
 				else overlays.find((item) => item.name === input.value)?.setEnabled(input.checked);
 				renderPanel();
+				const folderDetails = panel.querySelector("[data-folders]");
+				if (folderDetails) folderDetails.open = foldersWereOpen;
+				await refreshFolders();
 			};
 			panel.addEventListener("change", changeHandler);
 			mapClickHandler = () => {

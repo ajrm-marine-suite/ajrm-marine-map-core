@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.4
+
+- Keep nested chart-folder controls visible and preserve their expanded state
+  when Auto Charts or another map-selector option changes.
+
 ## 0.7.3
 
 - Disable the chart-cycle button and keyboard shortcut whenever Auto Charts is
