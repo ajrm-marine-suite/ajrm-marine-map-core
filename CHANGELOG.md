@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.6
+
+- Add the shared tidal-event window, chart-datum SVG tide curve, station
+  reference levels and interactive hover renderer used by Display and Marine
+  Planning.
+
 ## 0.7.5
 
 - Keep nested chart-folder controls visible and preserve their expanded state

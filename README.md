@@ -1,13 +1,14 @@
 # AJRM Marine Map Core
 
-Version `0.7.3` disables manual chart cycling whenever Auto Charts is off.
+Version `0.7.6` adds the shared tide-curve renderer used by Display and Marine
+Planning. Version `0.7.3` disables manual chart cycling whenever Auto Charts is off.
 Version `0.7.2` adds the shared COG-oriented own-vessel follow calculation and
 browser setting while retaining the reviewed shared-map control baseline.
 
 Internal, versioned map UI used by AJRM Marine Display, DR Plotter, Voyage
 Viewer and Harbour Editor. It is a library rather than a Signal K application.
 
-The package owns the common Charts button and selector, basemap and overlay
+The package owns the common Charts button and selector, tide-curve rendering, basemap and overlay
 presentation, Auto Charts catalogue normalization and ranking, chart-cycle
 status display, Charts Provider Simple folder controls, coordinate formatting
 and cursor readout helpers.
