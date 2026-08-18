@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.7
+
+- Let shared tide-curve consumers explicitly request UTC labels and hover
+  times while Display continues to use the browser's civil timezone.
+
 ## 0.7.6
 
 - Add the shared tidal-event window, chart-datum SVG tide curve, station

@@ -35,6 +35,7 @@ test("renders the Display tide-curve contract with datum references", () => {
 	}
 	assert.match(svg, /class="tide-hover-target"/);
 	assert.ok(Number(interpolatedTideHeight(events, "2026-08-18T03:00:00Z")) > 1);
+	assert.match(tideCurveSvg(events, "2026-08-18T03:00:00Z", null, { timeZone: "UTC" }), /Predicted tide curve/);
 });
 
 test("renders an explicit empty state", () => {

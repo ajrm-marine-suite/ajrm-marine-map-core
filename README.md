@@ -1,6 +1,7 @@
 # AJRM Marine Map Core
 
-Version `0.7.6` adds the shared tide-curve renderer used by Display and Marine
+Version `0.7.7` adds an explicit UTC/local label option to the shared
+tide-curve renderer introduced in `0.7.6` for Display and Marine
 Planning. Version `0.7.3` disables manual chart cycling whenever Auto Charts is off.
 Version `0.7.2` adds the shared COG-oriented own-vessel follow calculation and
 browser setting while retaining the reviewed shared-map control baseline.

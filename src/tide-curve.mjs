@@ -72,7 +72,7 @@ function normalizedReferenceLevels(referenceLevels) {
 	});
 }
 
-export function tideCurveSvg(events, now = Date.now(), referenceLevels = null) {
+export function tideCurveSvg(events, now = Date.now(), referenceLevels = null, { timeZone } = {}) {
 	const { events: extremes, samples } = eventPoints(events);
 	if (samples.length < 2) return "<p class=\"text-body-secondary\">No tidal curve is available.</p>";
 	const references = normalizedReferenceLevels(referenceLevels);
@@ -91,8 +91,12 @@ export function tideCurveSvg(events, now = Date.now(), referenceLevels = null) {
 	const line = samples.map((point, index) => `${index ? "L" : "M"}${x(point.at).toFixed(1)},${y(point.heightM).toFixed(1)}`).join(" ");
 	const nowMs = new Date(now).getTime();
 	const nowX = nowMs >= minTime && nowMs <= maxTime ? x(nowMs) : null;
-	const dateFormatter = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short" });
-	const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" });
+	const dateFormatter = new Intl.DateTimeFormat(undefined, {
+		weekday: "short", day: "numeric", month: "short", ...(timeZone ? { timeZone } : {}),
+	});
+	const timeFormatter = new Intl.DateTimeFormat(undefined, {
+		hour: "2-digit", minute: "2-digit", ...(timeZone ? { timeZone } : {}),
+	});
 	const labels = extremes.map((event) => {
 		const eventDate = new Date(event.at);
 		const eventX = x(eventDate.getTime()).toFixed(1);
@@ -134,14 +138,15 @@ export function tideCurveSvg(events, now = Date.now(), referenceLevels = null) {
 	</svg>`;
 }
 
-function tideEventTimeLabel(value) {
+function tideEventTimeLabel(value, timeZone) {
 	if (!value || Number.isNaN(Date.parse(value))) return "—";
 	return new Intl.DateTimeFormat(undefined, {
 		weekday: "short", hour: "2-digit", minute: "2-digit", timeZoneName: "short",
+		...(timeZone ? { timeZone } : {}),
 	}).format(new Date(value));
 }
 
-export function attachTideCurveHover(container, events, { windowObject = globalThis.window } = {}) {
+export function attachTideCurveHover(container, events, { windowObject = globalThis.window, timeZone } = {}) {
 	const svg = container?.querySelector?.("svg[data-min-time]");
 	const target = svg?.querySelector?.(".tide-hover-target");
 	const hover = svg?.querySelector?.(".tide-hover");
@@ -181,7 +186,7 @@ export function attachTideCurveHover(container, events, { windowObject = globalT
 		dot.setAttribute("cx", x.toFixed(1));
 		dot.setAttribute("cy", y.toFixed(1));
 		hover.setAttribute("visibility", "visible");
-		readout.textContent = `${tideEventTimeLabel(new Date(at).toISOString())} · ${heightM.toFixed(2)} m`;
+		readout.textContent = `${tideEventTimeLabel(new Date(at).toISOString(), timeZone)} · ${heightM.toFixed(2)} m`;
 		readout.hidden = false;
 		const readoutBounds = readout.getBoundingClientRect();
 		readout.style.left = `${Math.max(8, Math.min(event.clientX + 12, windowObject.innerWidth - readoutBounds.width - 8))}px`;
