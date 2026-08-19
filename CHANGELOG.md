@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.8 - 2026-08-19
+
+- Add a basemap-only step to the shared chart-cycle control before returning to
+  automatic chart selection.
+
 ## 0.7.7
 
 - Let shared tide-curve consumers explicitly request UTC labels and hover

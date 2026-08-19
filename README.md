@@ -1,6 +1,7 @@
 # AJRM Marine Map Core
 
-Version `0.7.7` adds an explicit UTC/local label option to the shared
+Version `0.7.8` makes the shared chart-cycle control include an explicit
+basemap-only step before it returns to automatic chart selection. Version `0.7.7` adds an explicit UTC/local label option to the shared
 tide-curve renderer introduced in `0.7.6` for Display and Marine
 Planning. Version `0.7.3` disables manual chart cycling whenever Auto Charts is off.
 Version `0.7.2` adds the shared COG-oriented own-vessel follow calculation and
@@ -37,8 +38,10 @@ Applications retain ownership of their operational layers and actions.
   browser setting (`C` by default), while ignoring keystrokes in form fields.
 - Consumers provide their Auto Charts enabled state so the cycle button and
   keyboard shortcut remain inactive whenever automatic chart display is off.
-- Chart-cycle result wording is shared with Display, including disabled,
-  unavailable, automatic and manually selected chart states.
+- Chart cycling runs through automatic selection, each alternative chart, a
+  basemap-only step, then back to automatic selection. Result wording is shared
+  with Display, including disabled, unavailable, automatic, manual and basemap
+  states.
 - Chart-selector height is measured against the space actually remaining below
   the control, with touch/momentum scrolling so folders remain reachable in
   short windows and on iPadOS.

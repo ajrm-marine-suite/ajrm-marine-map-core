@@ -306,6 +306,8 @@ test("chart-cycle status wording is shared by map consumers", () => {
 	assert.equal(chartCycleStatusMessage({ selected: charts[1], candidates: charts, manualChartId: "broad" }), "Chart 2 of 2: Approaches");
 	assert.equal(chartCycleStatusMessage({ selected: null, candidates: [] }), "No enabled chart covers the map centre");
 	assert.equal(chartCycleResultMessage({ mode: "disabled" }), "Auto Charts is switched off");
+	assert.equal(chartCycleResultMessage({ mode: "none" }), "No Auto chart — basemap shown");
+	assert.equal(chartCycleStatusMessage({ selected: null, candidates: charts, basemapOnly: true }), "No Auto chart — basemap shown");
 	assert.equal(chartCycleResultMessage(null), "Chart selection unavailable");
 	const css = readFileSync(new URL("../styles/map-core.css", import.meta.url), "utf8");
 	assert.match(css, /\.ajrm-map-chart-cycle-status\{position:fixed;top:12px;left:50%;z-index:1100/);
@@ -381,6 +383,35 @@ test("chart-cycle control is disabled and silent while Auto Charts is off", () =
 	keydown({ key: "c", target: { tagName: "DIV" }, preventDefault: () => { prevented = true; } });
 	assert.equal(changes, 1);
 	assert.equal(prevented, true);
+});
+
+test("chart-cycle control includes a basemap-only step before returning to automatic", () => {
+	let changes = 0;
+	const charts = normalizeChartResources({
+		detail: { bounds: [-4.6, 55.4, -4.4, 55.6], minzoom: 12, maxzoom: 18 },
+	});
+	const map = {
+		getCenter: () => ({ lat: 55.5, lng: -4.5 }),
+		getZoom: () => 15,
+		getMaxZoom: () => 22,
+		on() {},
+		off() {},
+	};
+	let button;
+	const L = {
+		Control: { extend: (definition) => class { constructor() { Object.assign(this, definition); } addTo() { this.onAdd(); return this; } } },
+		DomUtil: { create(tagName) { const element = { setAttribute(name, value) { this[name] = value; }, removeAttribute() {} }; if (tagName === "button") button = element; return element; } },
+		DomEvent: { disableClickPropagation() {}, on() {}, stop() {} },
+	};
+	const control = createChartCycleControl({ L, map, getCharts: () => charts, onChange: () => { changes += 1; } }).addTo();
+	assert.equal(button.disabled, false);
+	assert.equal(chartId(control.choose()), "detail");
+	assert.equal(control.cycle(), null);
+	assert.equal(control.isBasemapOnly, true);
+	assert.equal(control.choose(), null);
+	assert.equal(chartId(control.cycle()), "detail");
+	assert.equal(control.isBasemapOnly, false);
+	assert.equal(changes, 2);
 });
 
 test("folder response preserves nesting and inherited state", () => {
