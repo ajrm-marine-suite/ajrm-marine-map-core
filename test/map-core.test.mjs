@@ -414,6 +414,26 @@ test("chart-cycle control includes a basemap-only step before returning to autom
 	assert.equal(changes, 2);
 });
 
+test("turning Auto Charts back on restores automatic selection after basemap-only", () => {
+	let enabled = true;
+	const charts = normalizeChartResources({ detail: { bounds: [-4.6, 55.4, -4.4, 55.6], minzoom: 12, maxzoom: 18 } });
+	const map = { getCenter: () => ({ lat: 55.5, lng: -4.5 }), getZoom: () => 15, getMaxZoom: () => 22, on() {}, off() {} };
+	const L = {
+		Control: { extend: (definition) => class { constructor() { Object.assign(this, definition); } addTo() { this.onAdd(); return this; } } },
+		DomUtil: { create: () => ({ setAttribute(name, value) { this[name] = value; }, removeAttribute() {} }) },
+		DomEvent: { disableClickPropagation() {}, on() {}, stop() {} },
+	};
+	const control = createChartCycleControl({ L, map, getCharts: () => charts, isEnabled: () => enabled }).addTo();
+	control.cycle();
+	assert.equal(control.isBasemapOnly, true);
+	enabled = false;
+	control.update();
+	enabled = true;
+	control.update();
+	assert.equal(control.isBasemapOnly, false);
+	assert.equal(chartId(control.choose()), "detail");
+});
+
 test("folder response preserves nesting and inherited state", () => {
 	assert.deepEqual(normalizeFolderResponse({ folders: ["/", "Admiralty", "Admiralty/West"], folderStates: { Admiralty: { enabled: false, effectiveEnabled: false }, "Admiralty/West": { enabled: true, effectiveEnabled: false } } }), [
 		{ path: "Admiralty", name: "Admiralty", depth: 0, enabled: false, effectiveEnabled: false },

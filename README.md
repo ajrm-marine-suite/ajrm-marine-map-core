@@ -1,6 +1,7 @@
 # AJRM Marine Map Core
 
-Version `0.7.8` makes the shared chart-cycle control include an explicit
+Version `0.7.9` restores automatic selection when Auto Charts is switched back
+on after the basemap-only cycle step. Version `0.7.8` makes the shared chart-cycle control include an explicit
 basemap-only step before it returns to automatic chart selection. Version `0.7.7` adds an explicit UTC/local label option to the shared
 tide-curve renderer introduced in `0.7.6` for Display and Marine
 Planning. Version `0.7.3` disables manual chart cycling whenever Auto Charts is off.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.9 - 2026-08-19
+
+- Restore automatic chart selection when Auto Charts is switched off and back
+  on after the basemap-only cycle step.
+
 ## 0.7.8 - 2026-08-19
 
 - Add a basemap-only step to the shared chart-cycle control before returning to

@@ -5,7 +5,7 @@
  */
 
 export const MAP_CORE_CONTRACT = "ajrm-marine-map-shell-v1";
-export const MAP_CORE_VERSION = "0.7.8";
+export const MAP_CORE_VERSION = "0.7.9";
 export const AUTO_CHARTS_NAME = "Auto Charts";
 export const OPEN_SEA_MAP_NAME = "OpenSeaMap";
 export const CHART_FOLDER_API_BASE = "/plugins/signalk-charts-provider-simple";
@@ -407,6 +407,7 @@ export function createChartCycleControl({
 }) {
 	const state = createChartCycleState();
 	let basemapOnly = false;
+	let previouslyEnabled = isEnabled() !== false;
 	let button;
 	let statusTimer = null;
 	const showStatus = (selected, candidates) => {
@@ -426,6 +427,11 @@ export function createChartCycleControl({
 	const syncButton = () => {
 		if (!button) return;
 		const enabled = isEnabled() !== false;
+		if (enabled && !previouslyEnabled) {
+			state.reset();
+			basemapOnly = false;
+		}
+		previouslyEnabled = enabled;
 		const candidates = state.getCandidates(getCharts(), map);
 		button.disabled = !enabled || candidates.length < 1;
 		const shortcut = chartCycleShortcut(storage);
