@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.11 - 2026-08-19
+
+- Give the chart-cycle banner a stable responsive width and keep the exported
+  runtime version aligned with the package release.
+
 ## 0.7.9 - 2026-08-19
 
 - Restore automatic chart selection when Auto Charts is switched off and back
