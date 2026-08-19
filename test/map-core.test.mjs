@@ -311,6 +311,7 @@ test("chart-cycle status wording is shared by map consumers", () => {
 	assert.equal(chartCycleResultMessage(null), "Chart selection unavailable");
 	const css = readFileSync(new URL("../styles/map-core.css", import.meta.url), "utf8");
 	assert.match(css, /\.ajrm-map-chart-cycle-status\{position:fixed;top:12px;left:50%;z-index:1100/);
+	assert.match(css, /\.ajrm-map-chart-cycle-status\{[^}]*width:min\(92vw,48rem\);max-width:min\(92vw,48rem\)/);
 });
 
 test("chart cycling uses Display's shared browser shortcut and ignores form editing", () => {

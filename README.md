@@ -1,5 +1,8 @@
 # AJRM Marine Map Core
 
+Version `0.7.10` gives the centred chart-cycle status banner a stable,
+responsive width so long chart names do not collapse into a narrow column.
+
 Version `0.7.9` restores automatic selection when Auto Charts is switched back
 on after the basemap-only cycle step. Version `0.7.8` makes the shared chart-cycle control include an explicit
 basemap-only step before it returns to automatic chart selection. Version `0.7.7` adds an explicit UTC/local label option to the shared
