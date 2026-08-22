@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.13 - 2026-08-22
+
+- Keep the normal empty-curve message distinct from the new high-only and
+  low-only station warning.
+
 ## 0.7.12 - 2026-08-22
 
 - Refuse to interpolate a tidal curve unless both high- and low-water events

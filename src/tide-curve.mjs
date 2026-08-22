@@ -87,7 +87,8 @@ function normalizedReferenceLevels(referenceLevels) {
 export function tideCurveSvg(events, now = Date.now(), referenceLevels = null, { timeZone } = {}) {
 	const capabilities = tideEventCapabilities(events);
 	if (!capabilities.completeExtrema) {
-		const available = capabilities.highWater ? "high-water" : capabilities.lowWater ? "low-water" : "no";
+		if (!capabilities.highWater && !capabilities.lowWater) return '<p class="text-body-secondary">No tidal curve is available.</p>';
+		const available = capabilities.highWater ? "high-water" : "low-water";
 		return `<p class="text-body-secondary">No full tidal curve is available; this station supplies ${available} events only.</p>`;
 	}
 	const { events: extremes, samples } = eventPoints(events);

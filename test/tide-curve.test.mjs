@@ -40,7 +40,7 @@ test("renders the Display tide-curve contract with datum references", () => {
 });
 
 test("renders an explicit empty state", () => {
-	assert.match(tideCurveSvg([]), /No full tidal curve is available/);
+	assert.match(tideCurveSvg([]), /No tidal curve is available/);
 });
 
 test("refuses to invent a curve between events of only one extreme type", () => {
