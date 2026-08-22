@@ -1,5 +1,7 @@
 # AJRM Marine Map Core
 
+Version `0.7.12` refuses to interpolate a tidal curve unless both high- and low-water events are present, and exposes explicit station event capabilities to every consumer.
+
 Version `0.7.11` gives the centred chart-cycle status banner a stable,
 responsive width so long chart names do not collapse into a narrow column.
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.12 - 2026-08-22
+
+- Refuse to interpolate a tidal curve unless both high- and low-water events
+  are present, and expose the station event-capability classification.
+
 ## 0.7.11 - 2026-08-19
 
 - Give the chart-cycle banner a stable responsive width and keep the exported

@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
 	interpolatedTideHeight,
+	tideEventCapabilities,
 	tideCurveEventsForDays,
 	tideCurveSvg,
 	tideGraphDays,
@@ -39,5 +40,17 @@ test("renders the Display tide-curve contract with datum references", () => {
 });
 
 test("renders an explicit empty state", () => {
-	assert.match(tideCurveSvg([]), /No tidal curve is available/);
+	assert.match(tideCurveSvg([]), /No full tidal curve is available/);
+});
+
+test("refuses to invent a curve between events of only one extreme type", () => {
+	const highOnly = events.filter((event) => event.type === "high");
+	assert.deepEqual(tideEventCapabilities(highOnly), {
+		highWater: true,
+		lowWater: false,
+		completeExtrema: false,
+		curve: false,
+	});
+	assert.match(tideCurveSvg(highOnly), /high-water events only/);
+	assert.doesNotMatch(tideCurveSvg(highOnly), /<svg/);
 });
